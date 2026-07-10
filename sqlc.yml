@@ -2,8 +2,8 @@ version: "2"
 
 sql:
   - engine: "postgresql"
-    queries: "./sql/queries"
-    schema: "./sql/schema"
+    queries: "./feedback/store/feedback.sql"
+    schema: "./sql/schema.sql"
     gen:
       go:
         package: "db"

@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"ms-feedbacks/feedback"
+	feedbackstore "ms-feedbacks/feedback/store"
+	feedbackhttp "ms-feedbacks/internal/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -26,18 +29,23 @@ func main() {
 		os.Getenv("DB_NAME"),
 	)
 
-	conn, err := pgx.Connect(context.Background(), connString)
+	conn, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close(context.Background())
+	defer conn.Close()
 
 	fmt.Println("Conectado ao PostgreSQL!")
 
-	gin := gin.Default()
+	router := gin.Default()
+	feedbackStore := feedbackstore.NewStore(conn)
+	feedbackService := feedback.NewService(feedbackStore)
+	feedbackHandler := feedbackhttp.NewFeedbackHandler(feedbackService)
+	router.GET("/ms-feedback/get/:idFigure", feedbackHandler.GetFeedbacksByFigureID())
+
 	addr := os.Getenv("HTTP_ADDR")
 
-	if err := gin.Run(addr); err != nil {
+	if err := router.Run(addr); err != nil {
 		log.Fatal(err)
 	}
 }
