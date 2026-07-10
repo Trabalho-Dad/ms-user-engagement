@@ -1,18 +1,43 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
-
-	"ms-feedbacks/shared"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	service := gin.Default()
-	addr := shared.GetString("HTTP_ADDR", ":5656")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	if err := service.Run(addr); err != nil {
+	connString := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+	)
+
+	conn, err := pgx.Connect(context.Background(), connString)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close(context.Background())
+
+	fmt.Println("Conectado ao PostgreSQL!")
+
+	gin := gin.Default()
+	addr := os.Getenv("HTTP_ADDR")
+
+	if err := gin.Run(addr); err != nil {
 		log.Fatal(err)
 	}
 }
