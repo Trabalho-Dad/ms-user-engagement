@@ -41,7 +41,10 @@ func main() {
 	feedbackStore := feedbackstore.NewStore(conn)
 	feedbackService := feedback.NewService(feedbackStore)
 	feedbackHandler := feedbackhttp.NewFeedbackHandler(feedbackService)
+
 	router.GET("/ms-feedback/get/:idFigure", feedbackHandler.GetFeedbacksByFigureID())
+
+	router.POST("/ms-feedback", feedbackHandler.CreateFeedback())
 
 	addr := os.Getenv("HTTP_ADDR")
 

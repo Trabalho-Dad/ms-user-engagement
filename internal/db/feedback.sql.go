@@ -11,6 +11,49 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createFeedback = `-- name: CreateFeedback :one
+INSERT INTO feedback (description, rating, id_figure, id_user)
+VALUES ($1, $2, $3, $4)
+RETURNING id, description, rating,created_at, updated_at, id_figure, id_user
+`
+
+type CreateFeedbackParams struct {
+	Description pgtype.Text `json:"description"`
+	Rating      int32       `json:"rating"`
+	IDFigure    pgtype.Int4 `json:"id_figure"`
+	IDUser      pgtype.Int4 `json:"id_user"`
+}
+
+type CreateFeedbackRow struct {
+	ID          int32            `json:"id"`
+	Description pgtype.Text      `json:"description"`
+	Rating      int32            `json:"rating"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	IDFigure    pgtype.Int4      `json:"id_figure"`
+	IDUser      pgtype.Int4      `json:"id_user"`
+}
+
+func (q *Queries) CreateFeedback(ctx context.Context, arg CreateFeedbackParams) (CreateFeedbackRow, error) {
+	row := q.db.QueryRow(ctx, createFeedback,
+		arg.Description,
+		arg.Rating,
+		arg.IDFigure,
+		arg.IDUser,
+	)
+	var i CreateFeedbackRow
+	err := row.Scan(
+		&i.ID,
+		&i.Description,
+		&i.Rating,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IDFigure,
+		&i.IDUser,
+	)
+	return i, err
+}
+
 const getFeedbacksByFigureID = `-- name: GetFeedbacksByFigureID :many
 SELECT 
     id, 
