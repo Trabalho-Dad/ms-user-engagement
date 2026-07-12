@@ -18,7 +18,11 @@ type UseCase interface {
 	CreateFeedback(feedback Feedback) (Feedback, error)
 }
 
+//go:generate mockery --name UseCase --output ./mocks --outpkg mocks --with-expecter
+
 type Repository interface {
 	GetFeedbacksByFigureID(idFigure int) ([]Feedback, error)
 	CreateFeedback(feedback Feedback) (Feedback, error)
 }
+
+//go:generate mockery --name Repository --output ./mocks --outpkg mocks --with-expecter
