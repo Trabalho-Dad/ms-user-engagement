@@ -29,3 +29,19 @@ func (q *Queries) CreateFavorite(ctx context.Context, arg CreateFavoriteParams) 
 	err := row.Scan(&i.IDUser, &i.IDFigure, &i.CreatedAt)
 	return i, err
 }
+
+const deleteFavorite = `-- name: DeleteFavorite :exec
+DELETE FROM favorite
+WHERE id_user = $1
+  AND id_figure = $2
+`
+
+type DeleteFavoriteParams struct {
+	IDUser   int32 `json:"id_user"`
+	IDFigure int32 `json:"id_figure"`
+}
+
+func (q *Queries) DeleteFavorite(ctx context.Context, arg DeleteFavoriteParams) error {
+	_, err := q.db.Exec(ctx, deleteFavorite, arg.IDUser, arg.IDFigure)
+	return err
+}

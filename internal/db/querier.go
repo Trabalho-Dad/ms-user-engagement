@@ -14,6 +14,7 @@ type Querier interface {
 	CreateFeedback(ctx context.Context, arg CreateFeedbackParams) (CreateFeedbackRow, error)
 	GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]GetFeedbacksByFigureIDRow, error)
 	CreateFavorite(ctx context.Context, arg CreateFavoriteParams) (Favorite, error)
+	DeleteFavorite(ctx context.Context, arg DeleteFavoriteParams) error
 }
 
 var _ Querier = (*Queries)(nil)

@@ -12,6 +12,7 @@ type Store struct {
 
 type Queries interface {
 	CreateFavorite(ctx context.Context, arg db.CreateFavoriteParams) (db.Favorite, error)
+	DeleteFavorite(ctx context.Context, arg db.DeleteFavoriteParams) error
 }
 
 func NewStore(database db.DBTX) *Store {
@@ -34,12 +35,23 @@ func (s *Store) Create(ctx context.Context, f *favorite.Favorite) (*favorite.Fav
 	return toFavorite(row), nil
 }
 
+func (s *Store) Delete(ctx context.Context, userID, figureID int64) error {
+	return s.Queries.DeleteFavorite(ctx, db.DeleteFavoriteParams{
+		IDUser:   int32(userID),
+		IDFigure: int32(figureID),
+	})
+}
+
 type sqlcQueries struct {
 	queries *db.Queries
 }
 
 func (q sqlcQueries) CreateFavorite(ctx context.Context, arg db.CreateFavoriteParams) (db.Favorite, error) {
 	return q.queries.CreateFavorite(ctx, arg)
+}
+
+func (q sqlcQueries) DeleteFavorite(ctx context.Context, arg db.DeleteFavoriteParams) error {
+	return q.queries.DeleteFavorite(ctx, arg)
 }
 
 func toFavorite(row db.Favorite) *favorite.Favorite {
