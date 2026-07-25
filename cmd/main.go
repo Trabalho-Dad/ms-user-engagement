@@ -6,7 +6,9 @@ import (
 	"log"
 	"ms-feedbacks/feedback"
 	feedbackstore "ms-feedbacks/feedback/store"
-	feedbackhttp "ms-feedbacks/internal/http"
+	"ms-feedbacks/favorite"
+	favoritestore "ms-feedbacks/favorite/store"
+	"ms-feedbacks/internal/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -38,13 +40,19 @@ func main() {
 	fmt.Println("Conectado ao PostgreSQL!")
 
 	router := gin.Default()
+
 	feedbackStore := feedbackstore.NewStore(conn)
 	feedbackService := feedback.NewService(feedbackStore)
-	feedbackHandler := feedbackhttp.NewFeedbackHandler(feedbackService)
+	feedbackHandler := http.NewFeedbackHandler(feedbackService)
+
+	favoriteStore := favoritestore.NewStore(conn)
+	favoriteService := favorite.NewService(favoriteStore)
+	favoriteHandler := http.NewFavoriteHandler(favoriteService)
 
 	router.GET("/ms-feedback/get/:idFigure", feedbackHandler.GetFeedbacksByFigureID())
-
 	router.POST("/ms-feedback", feedbackHandler.CreateFeedback())
+
+	router.POST("/ms-favorite", favoriteHandler.CreateFavorite())
 
 	addr := os.Getenv("HTTP_ADDR")
 

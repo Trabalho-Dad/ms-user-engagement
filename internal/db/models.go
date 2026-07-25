@@ -8,6 +8,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Favorite struct {
+	IDUser    int32            `json:"id_user"`
+	IDFigure  int32            `json:"id_figure"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+}
+
 type Feedback struct {
 	ID          int32            `json:"id"`
 	Rating      int32            `json:"rating"`
