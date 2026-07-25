@@ -13,6 +13,7 @@ type Store struct {
 type Queries interface {
 	CreateFavorite(ctx context.Context, arg db.CreateFavoriteParams) (db.Favorite, error)
 	DeleteFavorite(ctx context.Context, arg db.DeleteFavoriteParams) error
+	ListFavoritesByUser(ctx context.Context, idUser int32) ([]db.Favorite, error)
 }
 
 func NewStore(database db.DBTX) *Store {
@@ -42,6 +43,20 @@ func (s *Store) Delete(ctx context.Context, userID, figureID int64) error {
 	})
 }
 
+func (s *Store) ListByUser(ctx context.Context, userID int64) ([]*favorite.Favorite, error) {
+	rows, err := s.Queries.ListFavoritesByUser(ctx, int32(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	favorites := make([]*favorite.Favorite, len(rows))
+	for i, row := range rows {
+		favorites[i] = toFavorite(row)
+	}
+
+	return favorites, nil
+}
+
 type sqlcQueries struct {
 	queries *db.Queries
 }
@@ -52,6 +67,10 @@ func (q sqlcQueries) CreateFavorite(ctx context.Context, arg db.CreateFavoritePa
 
 func (q sqlcQueries) DeleteFavorite(ctx context.Context, arg db.DeleteFavoriteParams) error {
 	return q.queries.DeleteFavorite(ctx, arg)
+}
+
+func (q sqlcQueries) ListFavoritesByUser(ctx context.Context, idUser int32) ([]db.Favorite, error) {
+	return q.queries.ListFavoritesByUser(ctx, idUser)
 }
 
 func toFavorite(row db.Favorite) *favorite.Favorite {

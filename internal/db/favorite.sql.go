@@ -45,3 +45,30 @@ func (q *Queries) DeleteFavorite(ctx context.Context, arg DeleteFavoriteParams) 
 	_, err := q.db.Exec(ctx, deleteFavorite, arg.IDUser, arg.IDFigure)
 	return err
 }
+
+const listFavoritesByUser = `-- name: ListFavoritesByUser :many
+SELECT id_user, id_figure, created_at
+FROM favorite
+WHERE id_user = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListFavoritesByUser(ctx context.Context, idUser int32) ([]Favorite, error) {
+	rows, err := q.db.Query(ctx, listFavoritesByUser, idUser)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Favorite{}
+	for rows.Next() {
+		var i Favorite
+		if err := rows.Scan(&i.IDUser, &i.IDFigure, &i.CreatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

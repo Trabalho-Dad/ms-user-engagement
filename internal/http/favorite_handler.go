@@ -58,3 +58,21 @@ func (h *FavoriteHandler) DeleteFavorite() gin.HandlerFunc {
 		c.Status(204)
 	}
 }
+
+func (h *FavoriteHandler) ListFavoritesByUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userID, err := strconv.ParseInt(c.Param("userID"), 10, 64)
+		if err != nil {
+			c.JSON(400, gin.H{"error": "invalid user id"})
+			return
+		}
+
+		favorites, err := h.FavoriteService.ListByUser(c.Request.Context(), userID)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(200, favorites)
+	}
+}

@@ -19,3 +19,7 @@ func (s *Service) Create(ctx context.Context, favorite *Favorite) (*Favorite, er
 func (s *Service) Delete(ctx context.Context, userID, figureID int64) error {
 	return s.repository.Delete(ctx, userID, figureID)
 }
+
+func (s *Service) ListByUser(ctx context.Context, userID int64) ([]*Favorite, error) {
+	return s.repository.ListByUser(ctx, userID)
+}

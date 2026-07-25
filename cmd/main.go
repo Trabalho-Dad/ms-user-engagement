@@ -54,6 +54,7 @@ func main() {
 
 	router.POST("/ms-favorite", favoriteHandler.CreateFavorite())
 	router.DELETE("/ms-favorite/:userID/:figureID", favoriteHandler.DeleteFavorite())
+	router.GET("/ms-favorite/:userID", favoriteHandler.ListFavoritesByUser())
 
 	addr := os.Getenv("HTTP_ADDR")
 

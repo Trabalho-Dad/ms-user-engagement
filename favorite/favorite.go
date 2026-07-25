@@ -18,9 +18,11 @@ var (
 type Repository interface {
 	Create(ctx context.Context, favorite *Favorite) (*Favorite, error)
 	Delete(ctx context.Context, userID, figureID int64) error
+	ListByUser(ctx context.Context, userID int64) ([]*Favorite, error)
 }
 
 type UseCase interface {
 	Create(ctx context.Context, favorite *Favorite) (*Favorite, error)
 	Delete(ctx context.Context, userID, figureID int64) error
+	ListByUser(ctx context.Context, userID int64) ([]*Favorite, error)
 }
