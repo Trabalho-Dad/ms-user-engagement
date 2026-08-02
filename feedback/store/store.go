@@ -85,6 +85,7 @@ func (q sqlcQueries) GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype
 		items[i] = db.Feedback{
 			ID:          row.ID,
 			Description: row.Description,
+			Rating:      row.Rating,
 			CreatedAt:   row.CreatedAt,
 			UpdatedAt:   row.UpdatedAt,
 			IDFigure:    row.IDFigure,
