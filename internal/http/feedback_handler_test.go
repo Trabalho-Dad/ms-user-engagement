@@ -40,7 +40,6 @@ func TestFeedbackHandler_GetFeedbacksByFigureID_Success(t *testing.T) {
 	expected := []feedback.Feedback{
 		{
 			ID:          "1",
-			CustomerID:  "customer-1",
 			Rating:      4,
 			Description: "good",
 			CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
@@ -188,7 +187,6 @@ func setupTestRouter(handler *FeedbackHandler) *gin.Engine {
 func validFeedbackRequest() feedback.Feedback {
 	return feedback.Feedback{
 		ID:          "feedback-input-1",
-		CustomerID:  "customer-1",
 		Rating:      5,
 		Description: "great product",
 		CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),

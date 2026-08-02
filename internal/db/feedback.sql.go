@@ -56,7 +56,8 @@ func (q *Queries) CreateFeedback(ctx context.Context, arg CreateFeedbackParams) 
 
 const getFeedbacksByFigureID = `-- name: GetFeedbacksByFigureID :many
 SELECT 
-    id, 
+    id,
+    rating,
     description, 
     created_at, 
     updated_at, 
@@ -66,26 +67,18 @@ FROM feedback
 WHERE id_figure = $1
 `
 
-type GetFeedbacksByFigureIDRow struct {
-	ID          int32            `json:"id"`
-	Description pgtype.Text      `json:"description"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	IDFigure    pgtype.Int4      `json:"id_figure"`
-	IDUser      pgtype.Int4      `json:"id_user"`
-}
-
-func (q *Queries) GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]GetFeedbacksByFigureIDRow, error) {
+func (q *Queries) GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]Feedback, error) {
 	rows, err := q.db.Query(ctx, getFeedbacksByFigureID, idFigure)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetFeedbacksByFigureIDRow{}
+	items := []Feedback{}
 	for rows.Next() {
-		var i GetFeedbacksByFigureIDRow
+		var i Feedback
 		if err := rows.Scan(
 			&i.ID,
+			&i.Rating,
 			&i.Description,
 			&i.CreatedAt,
 			&i.UpdatedAt,

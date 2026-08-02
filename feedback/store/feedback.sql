@@ -1,6 +1,7 @@
 -- name: GetFeedbacksByFigureID :many
 SELECT 
-    id, 
+    id,
+    rating,
     description, 
     created_at, 
     updated_at, 

@@ -7,7 +7,6 @@ import (
 
 type Feedback struct {
 	ID          string    `json:"id"`
-	CustomerID  string    `json:"customer_id"`
 	Rating      int       `json:"rating"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -19,10 +18,6 @@ type Feedback struct {
 func (f Feedback) Validate() error {
 	if f.ID == "" {
 		return errors.New("feedback id is required")
-	}
-
-	if f.CustomerID == "" {
-		return errors.New("customer id is required")
 	}
 
 	if f.Rating < 1 || f.Rating > 5 {

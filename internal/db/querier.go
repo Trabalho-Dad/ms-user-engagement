@@ -12,10 +12,7 @@ import (
 
 type Querier interface {
 	CreateFeedback(ctx context.Context, arg CreateFeedbackParams) (CreateFeedbackRow, error)
-	GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]GetFeedbacksByFigureIDRow, error)
-	CreateFavorite(ctx context.Context, arg CreateFavoriteParams) (Favorite, error)
-	DeleteFavorite(ctx context.Context, arg DeleteFavoriteParams) error
-	ListFavoritesByUser(ctx context.Context, idUser int32) ([]Favorite, error)
+	GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]Feedback, error)
 }
 
 var _ Querier = (*Queries)(nil)
