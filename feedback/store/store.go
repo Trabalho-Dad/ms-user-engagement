@@ -99,6 +99,7 @@ func toFeedback(row db.Feedback) feedback.Feedback {
 	return feedback.Feedback{
 		ID:          strconv.FormatInt(int64(row.ID), 10),
 		Description: row.Description.String,
+		Rating:      int(row.Rating),
 		CreatedAt:   row.CreatedAt.Time,
 		UpdatedAt:   row.UpdatedAt.Time,
 		IdFigure:    int(row.IDFigure.Int32),
