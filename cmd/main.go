@@ -40,6 +40,7 @@ func main() {
 	fmt.Println("Conectado ao PostgreSQL!")
 
 	router := gin.Default()
+	router.Use(http.CORSMiddleware())
 
 	feedbackStore := feedbackstore.NewStore(conn)
 	feedbackService := feedback.NewService(feedbackStore)
