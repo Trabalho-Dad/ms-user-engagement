@@ -15,7 +15,9 @@ type Store struct {
 
 type Queries interface {
 	CreateFeedback(ctx context.Context, arg db.CreateFeedbackParams) (db.Feedback, error)
-	GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]db.Feedback, error)
+	GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedbacksByFigureIDParams) ([]db.Feedback, error)
+	CountFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) (int64, error)
+	GetFeedbackSummary(ctx context.Context) (db.GetFeedbackSummaryRow, error)
 }
 
 func NewStore(database db.DBTX) *Store {
@@ -24,17 +26,53 @@ func NewStore(database db.DBTX) *Store {
 	}
 }
 
-func (s *Store) GetFeedbacksByFigureID(idFigure int) ([]feedback.Feedback, error) {
-	rows, err := s.Queries.GetFeedbacksByFigureID(context.Background(), pgtype.Int4{Int32: int32(idFigure), Valid: true})
+func (s *Store) GetFeedbacksByFigureID(idFigure int, page int) (feedback.PaginatedFeedbacks, error) {
+	ctx := context.Background()
+	idFigureParam := pgtype.Int4{Int32: int32(idFigure), Valid: true}
+
+	totalItems, err := s.Queries.CountFeedbacksByFigureID(ctx, idFigureParam)
 	if err != nil {
-		return nil, err
+		return feedback.PaginatedFeedbacks{}, err
+	}
+
+	rows, err := s.Queries.GetFeedbacksByFigureID(ctx, db.GetFeedbacksByFigureIDParams{
+		IDFigure: idFigureParam,
+		Limit:    feedback.FeedbacksPageSize,
+		Offset:   int32((page - 1) * feedback.FeedbacksPageSize),
+	})
+	if err != nil {
+		return feedback.PaginatedFeedbacks{}, err
 	}
 
 	feedbacks := make([]feedback.Feedback, len(rows))
 	for i, row := range rows {
 		feedbacks[i] = toFeedback(row)
 	}
-	return feedbacks, nil
+
+	totalPages := 0
+	if totalItems > 0 {
+		totalPages = int((totalItems + int64(feedback.FeedbacksPageSize) - 1) / int64(feedback.FeedbacksPageSize))
+	}
+
+	return feedback.PaginatedFeedbacks{
+		Feedbacks:  feedbacks,
+		Page:       page,
+		PageSize:   feedback.FeedbacksPageSize,
+		TotalItems: totalItems,
+		TotalPages: totalPages,
+	}, nil
+}
+
+func (s *Store) GetFeedbackSummary() (feedback.Summary, error) {
+	row, err := s.Queries.GetFeedbackSummary(context.Background())
+	if err != nil {
+		return feedback.Summary{}, err
+	}
+
+	return feedback.Summary{
+		TotalFeedbacks: row.TotalFeedbacks,
+		AverageRating:  row.AverageRating,
+	}, nil
 }
 
 func (s *Store) CreateFeedback(fb feedback.Feedback) (feedback.Feedback, error) {
@@ -74,8 +112,16 @@ func (q sqlcQueries) CreateFeedback(ctx context.Context, arg db.CreateFeedbackPa
 	}, nil
 }
 
-func (q sqlcQueries) GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]db.Feedback, error) {
-	rows, err := q.queries.GetFeedbacksByFigureID(ctx, idFigure)
+func (q sqlcQueries) GetFeedbackSummary(ctx context.Context) (db.GetFeedbackSummaryRow, error) {
+	return q.queries.GetFeedbackSummary(ctx)
+}
+
+func (q sqlcQueries) CountFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) (int64, error) {
+	return q.queries.CountFeedbacksByFigureID(ctx, idFigure)
+}
+
+func (q sqlcQueries) GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedbacksByFigureIDParams) ([]db.Feedback, error) {
+	rows, err := q.queries.GetFeedbacksByFigureID(ctx, arg)
 	if err != nil {
 		return nil, err
 	}

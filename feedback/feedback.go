@@ -3,8 +3,9 @@ package feedback
 import "errors"
 
 const (
-	MinRating = 1
-	MaxRating = 5
+	MinRating         = 1
+	MaxRating         = 5
+	FeedbacksPageSize = 6
 )
 
 var (
@@ -14,15 +15,13 @@ var (
 )
 
 type UseCase interface {
-	GetFeedbacksByFigureID(idFigure int) ([]Feedback, error)
+	GetFeedbacksByFigureID(idFigure int, page int) (PaginatedFeedbacks, error)
 	CreateFeedback(feedback Feedback) (Feedback, error)
+	GetFeedbackSummary() (Summary, error)
 }
-
-//go:generate mockery --name UseCase --output ./mocks --outpkg mocks --with-expecter
 
 type Repository interface {
-	GetFeedbacksByFigureID(idFigure int) ([]Feedback, error)
+	GetFeedbacksByFigureID(idFigure int, page int) (PaginatedFeedbacks, error)
 	CreateFeedback(feedback Feedback) (Feedback, error)
+	GetFeedbackSummary() (Summary, error)
 }
-
-//go:generate mockery --name Repository --output ./mocks --outpkg mocks --with-expecter

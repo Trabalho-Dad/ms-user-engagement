@@ -29,8 +29,12 @@ func NewServiceWithPurchaseCheck(repo Repository, purchaseCheck func() (bool, er
 	}
 }
 
-func (s *Service) GetFeedbacksByFigureID(idFigure int) ([]Feedback, error) {
-	return s.Repository.GetFeedbacksByFigureID(idFigure)
+func (s *Service) GetFeedbacksByFigureID(idFigure int, page int) (PaginatedFeedbacks, error) {
+	return s.Repository.GetFeedbacksByFigureID(idFigure, page)
+}
+
+func (s *Service) GetFeedbackSummary() (Summary, error) {
+	return s.Repository.GetFeedbackSummary()
 }
 
 func (s *Service) CreateFeedback(feedback Feedback) (Feedback, error) {

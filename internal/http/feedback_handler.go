@@ -24,13 +24,33 @@ func (h *FeedbackHandler) GetFeedbacksByFigureID() gin.HandlerFunc {
 			c.JSON(400, gin.H{"error": "invalid figure id"})
 			return
 		}
-		feedbacks, err := h.FeedbackService.GetFeedbacksByFigureID(idFigure)
 
+		page := 1
+		if p := c.Query("page"); p != "" {
+			page, err = strconv.Atoi(p)
+			if err != nil || page < 1 {
+				c.JSON(400, gin.H{"error": "invalid page"})
+				return
+			}
+		}
+
+		feedbacks, err := h.FeedbackService.GetFeedbacksByFigureID(idFigure, page)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
 		c.JSON(200, feedbacks)
+	}
+}
+
+func (h *FeedbackHandler) GetFeedbackSummary() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		summary, err := h.FeedbackService.GetFeedbackSummary()
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, summary)
 	}
 }
 

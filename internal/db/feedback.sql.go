@@ -11,6 +11,19 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countFeedbacksByFigureID = `-- name: CountFeedbacksByFigureID :one
+SELECT COUNT(*)::bigint AS total_count
+FROM feedback
+WHERE id_figure = $1
+`
+
+func (q *Queries) CountFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) (int64, error) {
+	row := q.db.QueryRow(ctx, countFeedbacksByFigureID, idFigure)
+	var total_count int64
+	err := row.Scan(&total_count)
+	return total_count, err
+}
+
 const createFeedback = `-- name: CreateFeedback :one
 INSERT INTO feedback (description, rating, id_figure, id_user)
 VALUES ($1, $2, $3, $4)
@@ -54,21 +67,49 @@ func (q *Queries) CreateFeedback(ctx context.Context, arg CreateFeedbackParams) 
 	return i, err
 }
 
+const getFeedbackSummary = `-- name: GetFeedbackSummary :one
+SELECT
+    COUNT(*)::bigint AS total_feedbacks,
+    COALESCE(AVG(rating), 0)::float8 AS average_rating
+FROM feedback
+`
+
+type GetFeedbackSummaryRow struct {
+	TotalFeedbacks int64   `json:"total_feedbacks"`
+	AverageRating  float64 `json:"average_rating"`
+}
+
+func (q *Queries) GetFeedbackSummary(ctx context.Context) (GetFeedbackSummaryRow, error) {
+	row := q.db.QueryRow(ctx, getFeedbackSummary)
+	var i GetFeedbackSummaryRow
+	err := row.Scan(&i.TotalFeedbacks, &i.AverageRating)
+	return i, err
+}
+
 const getFeedbacksByFigureID = `-- name: GetFeedbacksByFigureID :many
-SELECT 
+SELECT
     id,
     rating,
-    description, 
-    created_at, 
-    updated_at, 
-    id_figure, 
+    description,
+    created_at,
+    updated_at,
+    id_figure,
     id_user
 FROM feedback
 WHERE id_figure = $1
+ORDER BY id ASC
+LIMIT $2
+OFFSET $3
 `
 
-func (q *Queries) GetFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) ([]Feedback, error) {
-	rows, err := q.db.Query(ctx, getFeedbacksByFigureID, idFigure)
+type GetFeedbacksByFigureIDParams struct {
+	IDFigure pgtype.Int4 `json:"id_figure"`
+	Limit    int32       `json:"limit"`
+	Offset   int32       `json:"offset"`
+}
+
+func (q *Queries) GetFeedbacksByFigureID(ctx context.Context, arg GetFeedbacksByFigureIDParams) ([]Feedback, error) {
+	rows, err := q.db.Query(ctx, getFeedbacksByFigureID, arg.IDFigure, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

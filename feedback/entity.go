@@ -15,6 +15,19 @@ type Feedback struct {
 	IdUser      int       `json:"id_user,omitempty"`
 }
 
+type Summary struct {
+	TotalFeedbacks int64   `json:"total_feedbacks"`
+	AverageRating  float64 `json:"average_rating"`
+}
+
+type PaginatedFeedbacks struct {
+	Feedbacks  []Feedback `json:"feedbacks"`
+	Page       int        `json:"page"`
+	PageSize   int        `json:"page_size"`
+	TotalItems int64      `json:"total_items"`
+	TotalPages int        `json:"total_pages"`
+}
+
 func (f Feedback) Validate() error {
 	if f.ID == "" {
 		return errors.New("feedback id is required")

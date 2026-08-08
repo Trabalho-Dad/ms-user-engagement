@@ -77,29 +77,27 @@ func (_c *UseCase_CreateFeedback_Call) RunAndReturn(run func(feedback.Feedback) 
 	return _c
 }
 
-// GetFeedbacksByFigureID provides a mock function with given fields: idFigure
-func (_m *UseCase) GetFeedbacksByFigureID(idFigure int) ([]feedback.Feedback, error) {
-	ret := _m.Called(idFigure)
+// GetFeedbacksByFigureID provides a mock function with given fields: idFigure, page
+func (_m *UseCase) GetFeedbacksByFigureID(idFigure int, page int) (feedback.PaginatedFeedbacks, error) {
+	ret := _m.Called(idFigure, page)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFeedbacksByFigureID")
 	}
 
-	var r0 []feedback.Feedback
+	var r0 feedback.PaginatedFeedbacks
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int) ([]feedback.Feedback, error)); ok {
-		return rf(idFigure)
+	if rf, ok := ret.Get(0).(func(int, int) (feedback.PaginatedFeedbacks, error)); ok {
+		return rf(idFigure, page)
 	}
-	if rf, ok := ret.Get(0).(func(int) []feedback.Feedback); ok {
-		r0 = rf(idFigure)
+	if rf, ok := ret.Get(0).(func(int, int) feedback.PaginatedFeedbacks); ok {
+		r0 = rf(idFigure, page)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]feedback.Feedback)
-		}
+		r0 = ret.Get(0).(feedback.PaginatedFeedbacks)
 	}
 
-	if rf, ok := ret.Get(1).(func(int) error); ok {
-		r1 = rf(idFigure)
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(idFigure, page)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -114,23 +112,79 @@ type UseCase_GetFeedbacksByFigureID_Call struct {
 
 // GetFeedbacksByFigureID is a helper method to define mock.On call
 //   - idFigure int
-func (_e *UseCase_Expecter) GetFeedbacksByFigureID(idFigure interface{}) *UseCase_GetFeedbacksByFigureID_Call {
-	return &UseCase_GetFeedbacksByFigureID_Call{Call: _e.mock.On("GetFeedbacksByFigureID", idFigure)}
+//   - page int
+func (_e *UseCase_Expecter) GetFeedbacksByFigureID(idFigure interface{}, page interface{}) *UseCase_GetFeedbacksByFigureID_Call {
+	return &UseCase_GetFeedbacksByFigureID_Call{Call: _e.mock.On("GetFeedbacksByFigureID", idFigure, page)}
 }
 
-func (_c *UseCase_GetFeedbacksByFigureID_Call) Run(run func(idFigure int)) *UseCase_GetFeedbacksByFigureID_Call {
+func (_c *UseCase_GetFeedbacksByFigureID_Call) Run(run func(idFigure int, page int)) *UseCase_GetFeedbacksByFigureID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int))
+		run(args[0].(int), args[1].(int))
 	})
 	return _c
 }
 
-func (_c *UseCase_GetFeedbacksByFigureID_Call) Return(_a0 []feedback.Feedback, _a1 error) *UseCase_GetFeedbacksByFigureID_Call {
+func (_c *UseCase_GetFeedbacksByFigureID_Call) Return(_a0 feedback.PaginatedFeedbacks, _a1 error) *UseCase_GetFeedbacksByFigureID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UseCase_GetFeedbacksByFigureID_Call) RunAndReturn(run func(int) ([]feedback.Feedback, error)) *UseCase_GetFeedbacksByFigureID_Call {
+func (_c *UseCase_GetFeedbacksByFigureID_Call) RunAndReturn(run func(int, int) (feedback.PaginatedFeedbacks, error)) *UseCase_GetFeedbacksByFigureID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetFeedbackSummary provides a mock function with no fields
+func (_m *UseCase) GetFeedbackSummary() (feedback.Summary, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetFeedbackSummary")
+	}
+
+	var r0 feedback.Summary
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (feedback.Summary, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() feedback.Summary); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(feedback.Summary)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UseCase_GetFeedbackSummary_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFeedbackSummary'
+type UseCase_GetFeedbackSummary_Call struct {
+	*mock.Call
+}
+
+// GetFeedbackSummary is a helper method to define mock.On call
+func (_e *UseCase_Expecter) GetFeedbackSummary() *UseCase_GetFeedbackSummary_Call {
+	return &UseCase_GetFeedbackSummary_Call{Call: _e.mock.On("GetFeedbackSummary")}
+}
+
+func (_c *UseCase_GetFeedbackSummary_Call) Run(run func()) *UseCase_GetFeedbackSummary_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *UseCase_GetFeedbackSummary_Call) Return(_a0 feedback.Summary, _a1 error) *UseCase_GetFeedbackSummary_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UseCase_GetFeedbackSummary_Call) RunAndReturn(run func() (feedback.Summary, error)) *UseCase_GetFeedbackSummary_Call {
 	_c.Call.Return(run)
 	return _c
 }

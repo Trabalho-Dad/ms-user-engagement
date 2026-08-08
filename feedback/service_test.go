@@ -14,28 +14,57 @@ func TestService_GetFeedbacksByFigureID(t *testing.T) {
 	t.Parallel()
 
 	repo := feedbackmocks.NewRepository(t)
-	expected := []feedback.Feedback{
-		{
-			ID:          "1",
-			Rating:      5,
-			Description: "great",
-			CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
-			IdFigure:    10,
-			IdUser:      20,
+	expected := feedback.PaginatedFeedbacks{
+		Feedbacks: []feedback.Feedback{
+			{
+				ID:          "1",
+				Rating:      5,
+				Description: "great",
+				CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
+				IdFigure:    10,
+				IdUser:      20,
+			},
 		},
+		Page:       1,
+		PageSize:   feedback.FeedbacksPageSize,
+		TotalItems: 1,
+		TotalPages: 1,
 	}
 
-	repo.EXPECT().GetFeedbacksByFigureID(10).Return(expected, nil)
+	repo.EXPECT().GetFeedbacksByFigureID(10, 1).Return(expected, nil)
 
 	service := feedback.NewService(repo)
 
-	got, err := service.GetFeedbacksByFigureID(10)
+	got, err := service.GetFeedbacksByFigureID(10, 1)
 	if err != nil {
 		t.Fatalf("GetFeedbacksByFigureID() error = %v", err)
 	}
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Fatalf("GetFeedbacksByFigureID() = %#v, want %#v", got, expected)
+	}
+}
+
+func TestService_GetFeedbackSummary(t *testing.T) {
+	t.Parallel()
+
+	repo := feedbackmocks.NewRepository(t)
+	expected := feedback.Summary{
+		TotalFeedbacks: 3,
+		AverageRating:  4.5,
+	}
+
+	repo.EXPECT().GetFeedbackSummary().Return(expected, nil)
+
+	service := feedback.NewService(repo)
+
+	got, err := service.GetFeedbackSummary()
+	if err != nil {
+		t.Fatalf("GetFeedbackSummary() error = %v", err)
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("GetFeedbackSummary() = %#v, want %#v", got, expected)
 	}
 }
 
