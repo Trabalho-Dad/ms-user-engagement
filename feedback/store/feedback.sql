@@ -27,4 +27,5 @@ RETURNING id, description, rating,created_at, updated_at, id_figure, id_user;
 SELECT
     COUNT(*)::bigint AS total_feedbacks,
     COALESCE(AVG(rating), 0)::float8 AS average_rating
-FROM feedback;
+FROM feedback
+WHERE id_figure = $1;

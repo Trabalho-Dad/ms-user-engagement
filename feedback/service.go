@@ -33,8 +33,8 @@ func (s *Service) GetFeedbacksByFigureID(idFigure int, page int) (PaginatedFeedb
 	return s.Repository.GetFeedbacksByFigureID(idFigure, page)
 }
 
-func (s *Service) GetFeedbackSummary() (Summary, error) {
-	return s.Repository.GetFeedbackSummary()
+func (s *Service) GetFeedbackSummary(idFigure int) (Summary, error) {
+	return s.Repository.GetFeedbackSummary(idFigure)
 }
 
 func (s *Service) CreateFeedback(feedback Feedback) (Feedback, error) {

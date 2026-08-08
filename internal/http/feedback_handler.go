@@ -45,7 +45,13 @@ func (h *FeedbackHandler) GetFeedbacksByFigureID() gin.HandlerFunc {
 
 func (h *FeedbackHandler) GetFeedbackSummary() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		summary, err := h.FeedbackService.GetFeedbackSummary()
+		idFigure, err := strconv.Atoi(c.Param("idFigure"))
+		if err != nil {
+			c.JSON(400, gin.H{"error": "invalid figure id"})
+			return
+		}
+
+		summary, err := h.FeedbackService.GetFeedbackSummary(idFigure)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return

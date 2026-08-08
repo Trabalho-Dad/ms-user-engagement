@@ -17,11 +17,11 @@ var (
 type UseCase interface {
 	GetFeedbacksByFigureID(idFigure int, page int) (PaginatedFeedbacks, error)
 	CreateFeedback(feedback Feedback) (Feedback, error)
-	GetFeedbackSummary() (Summary, error)
+	GetFeedbackSummary(idFigure int) (Summary, error)
 }
 
 type Repository interface {
 	GetFeedbacksByFigureID(idFigure int, page int) (PaginatedFeedbacks, error)
 	CreateFeedback(feedback Feedback) (Feedback, error)
-	GetFeedbackSummary() (Summary, error)
+	GetFeedbackSummary(idFigure int) (Summary, error)
 }

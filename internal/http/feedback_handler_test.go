@@ -159,12 +159,12 @@ func TestFeedbackHandler_GetFeedbackSummary_Success(t *testing.T) {
 		AverageRating:  4.5,
 	}
 
-	useCase.EXPECT().GetFeedbackSummary().Return(expected, nil)
+	useCase.EXPECT().GetFeedbackSummary(10).Return(expected, nil)
 
 	router := setupTestRouter(NewFeedbackHandler(useCase))
 
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/ms-feedback/summary", nil)
+	req := httptest.NewRequest(http.MethodGet, "/ms-feedback/summary/10", nil)
 	router.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
@@ -181,16 +181,34 @@ func TestFeedbackHandler_GetFeedbackSummary_Success(t *testing.T) {
 	}
 }
 
+func TestFeedbackHandler_GetFeedbackSummary_InvalidID(t *testing.T) {
+	t.Parallel()
+
+	router := setupTestRouter(&FeedbackHandler{})
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/ms-feedback/summary/abc", nil)
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status code = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+
+	if !bytes.Contains(rec.Body.Bytes(), []byte("invalid figure id")) {
+		t.Fatalf("response body = %s, want invalid figure id", rec.Body.String())
+	}
+}
+
 func TestFeedbackHandler_GetFeedbackSummary_Error(t *testing.T) {
 	t.Parallel()
 
 	useCase := feedbackmocks.NewUseCase(t)
-	useCase.EXPECT().GetFeedbackSummary().Return(feedback.Summary{}, errors.New("boom"))
+	useCase.EXPECT().GetFeedbackSummary(10).Return(feedback.Summary{}, errors.New("boom"))
 
 	router := setupTestRouter(NewFeedbackHandler(useCase))
 
 	rec := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/ms-feedback/summary", nil)
+	req := httptest.NewRequest(http.MethodGet, "/ms-feedback/summary/10", nil)
 	router.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusInternalServerError {
@@ -290,7 +308,7 @@ func setupTestRouter(handler *FeedbackHandler) *gin.Engine {
 
 	router := gin.New()
 	router.GET("/ms-feedback/get/:idFigure", handler.GetFeedbacksByFigureID())
-	router.GET("/ms-feedback/summary", handler.GetFeedbackSummary())
+	router.GET("/ms-feedback/summary/:idFigure", handler.GetFeedbackSummary())
 	router.POST("/ms-feedback", handler.CreateFeedback())
 
 	return router

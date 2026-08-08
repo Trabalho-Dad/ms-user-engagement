@@ -72,6 +72,7 @@ SELECT
     COUNT(*)::bigint AS total_feedbacks,
     COALESCE(AVG(rating), 0)::float8 AS average_rating
 FROM feedback
+WHERE id_figure = $1
 `
 
 type GetFeedbackSummaryRow struct {
@@ -79,8 +80,8 @@ type GetFeedbackSummaryRow struct {
 	AverageRating  float64 `json:"average_rating"`
 }
 
-func (q *Queries) GetFeedbackSummary(ctx context.Context) (GetFeedbackSummaryRow, error) {
-	row := q.db.QueryRow(ctx, getFeedbackSummary)
+func (q *Queries) GetFeedbackSummary(ctx context.Context, idFigure pgtype.Int4) (GetFeedbackSummaryRow, error) {
+	row := q.db.QueryRow(ctx, getFeedbackSummary, idFigure)
 	var i GetFeedbackSummaryRow
 	err := row.Scan(&i.TotalFeedbacks, &i.AverageRating)
 	return i, err

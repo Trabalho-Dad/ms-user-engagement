@@ -17,7 +17,7 @@ type Queries interface {
 	CreateFeedback(ctx context.Context, arg db.CreateFeedbackParams) (db.Feedback, error)
 	GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedbacksByFigureIDParams) ([]db.Feedback, error)
 	CountFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) (int64, error)
-	GetFeedbackSummary(ctx context.Context) (db.GetFeedbackSummaryRow, error)
+	GetFeedbackSummary(ctx context.Context, idFigure pgtype.Int4) (db.GetFeedbackSummaryRow, error)
 }
 
 func NewStore(database db.DBTX) *Store {
@@ -63,8 +63,10 @@ func (s *Store) GetFeedbacksByFigureID(idFigure int, page int) (feedback.Paginat
 	}, nil
 }
 
-func (s *Store) GetFeedbackSummary() (feedback.Summary, error) {
-	row, err := s.Queries.GetFeedbackSummary(context.Background())
+func (s *Store) GetFeedbackSummary(idFigure int) (feedback.Summary, error) {
+	idFigureParam := pgtype.Int4{Int32: int32(idFigure), Valid: true}
+
+	row, err := s.Queries.GetFeedbackSummary(context.Background(), idFigureParam)
 	if err != nil {
 		return feedback.Summary{}, err
 	}
@@ -112,8 +114,8 @@ func (q sqlcQueries) CreateFeedback(ctx context.Context, arg db.CreateFeedbackPa
 	}, nil
 }
 
-func (q sqlcQueries) GetFeedbackSummary(ctx context.Context) (db.GetFeedbackSummaryRow, error) {
-	return q.queries.GetFeedbackSummary(ctx)
+func (q sqlcQueries) GetFeedbackSummary(ctx context.Context, idFigure pgtype.Int4) (db.GetFeedbackSummaryRow, error) {
+	return q.queries.GetFeedbackSummary(ctx, idFigure)
 }
 
 func (q sqlcQueries) CountFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) (int64, error) {

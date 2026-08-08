@@ -54,11 +54,11 @@ func TestService_GetFeedbackSummary(t *testing.T) {
 		AverageRating:  4.5,
 	}
 
-	repo.EXPECT().GetFeedbackSummary().Return(expected, nil)
+	repo.EXPECT().GetFeedbackSummary(10).Return(expected, nil)
 
 	service := feedback.NewService(repo)
 
-	got, err := service.GetFeedbackSummary()
+	got, err := service.GetFeedbackSummary(10)
 	if err != nil {
 		t.Fatalf("GetFeedbackSummary() error = %v", err)
 	}

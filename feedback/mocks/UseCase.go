@@ -134,9 +134,9 @@ func (_c *UseCase_GetFeedbacksByFigureID_Call) RunAndReturn(run func(int, int) (
 	return _c
 }
 
-// GetFeedbackSummary provides a mock function with no fields
-func (_m *UseCase) GetFeedbackSummary() (feedback.Summary, error) {
-	ret := _m.Called()
+// GetFeedbackSummary provides a mock function with given fields: idFigure
+func (_m *UseCase) GetFeedbackSummary(idFigure int) (feedback.Summary, error) {
+	ret := _m.Called(idFigure)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFeedbackSummary")
@@ -144,17 +144,17 @@ func (_m *UseCase) GetFeedbackSummary() (feedback.Summary, error) {
 
 	var r0 feedback.Summary
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (feedback.Summary, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(int) (feedback.Summary, error)); ok {
+		return rf(idFigure)
 	}
-	if rf, ok := ret.Get(0).(func() feedback.Summary); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(int) feedback.Summary); ok {
+		r0 = rf(idFigure)
 	} else {
 		r0 = ret.Get(0).(feedback.Summary)
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(idFigure)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -168,13 +168,14 @@ type UseCase_GetFeedbackSummary_Call struct {
 }
 
 // GetFeedbackSummary is a helper method to define mock.On call
-func (_e *UseCase_Expecter) GetFeedbackSummary() *UseCase_GetFeedbackSummary_Call {
-	return &UseCase_GetFeedbackSummary_Call{Call: _e.mock.On("GetFeedbackSummary")}
+//   - idFigure int
+func (_e *UseCase_Expecter) GetFeedbackSummary(idFigure interface{}) *UseCase_GetFeedbackSummary_Call {
+	return &UseCase_GetFeedbackSummary_Call{Call: _e.mock.On("GetFeedbackSummary", idFigure)}
 }
 
-func (_c *UseCase_GetFeedbackSummary_Call) Run(run func()) *UseCase_GetFeedbackSummary_Call {
+func (_c *UseCase_GetFeedbackSummary_Call) Run(run func(idFigure int)) *UseCase_GetFeedbackSummary_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(int))
 	})
 	return _c
 }
@@ -184,7 +185,7 @@ func (_c *UseCase_GetFeedbackSummary_Call) Return(_a0 feedback.Summary, _a1 erro
 	return _c
 }
 
-func (_c *UseCase_GetFeedbackSummary_Call) RunAndReturn(run func() (feedback.Summary, error)) *UseCase_GetFeedbackSummary_Call {
+func (_c *UseCase_GetFeedbackSummary_Call) RunAndReturn(run func(int) (feedback.Summary, error)) *UseCase_GetFeedbackSummary_Call {
 	_c.Call.Return(run)
 	return _c
 }

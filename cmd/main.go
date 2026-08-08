@@ -50,7 +50,7 @@ func main() {
 	favoriteHandler := http.NewFavoriteHandler(favoriteService)
 
 	router.GET("/ms-feedback/get/:idFigure", feedbackHandler.GetFeedbacksByFigureID())
-	router.GET("/ms-feedback/summary", feedbackHandler.GetFeedbackSummary())
+	router.GET("/ms-feedback/summary/:idFigure", feedbackHandler.GetFeedbackSummary())
 	router.POST("/ms-feedback", feedbackHandler.CreateFeedback())
 
 	router.POST("/ms-favorite", favoriteHandler.CreateFavorite())
