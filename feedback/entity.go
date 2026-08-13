@@ -29,20 +29,12 @@ type PaginatedFeedbacks struct {
 }
 
 func (f Feedback) Validate() error {
-	if f.ID == "" {
-		return errors.New("feedback id is required")
-	}
-
 	if f.Rating < 1 || f.Rating > 5 {
 		return errors.New("rating must be between 1 and 5")
 	}
 
 	if f.Description == "" {
 		return errors.New("description is required")
-	}
-
-	if f.CreatedAt.IsZero() {
-		return errors.New("created at is required")
 	}
 	return nil
 }

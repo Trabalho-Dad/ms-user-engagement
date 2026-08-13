@@ -11,6 +11,13 @@ type FeedbackHandler struct {
 	FeedbackService feedback.UseCase
 }
 
+type FeedbackInputData struct {
+	Description string `json:"description"`
+	Rating      int    `json:"rating"`
+	IdFigure    int    `json:"id_figure"`
+	IdUser      int    `json:"id_user"`
+}
+
 func NewFeedbackHandler(feedbackService feedback.UseCase) *FeedbackHandler {
 	return &FeedbackHandler{
 		FeedbackService: feedbackService,
@@ -62,17 +69,27 @@ func (h *FeedbackHandler) GetFeedbackSummary() gin.HandlerFunc {
 
 func (h *FeedbackHandler) CreateFeedback() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var feedback feedback.Feedback
-		if err := c.ShouldBindJSON(&feedback); err != nil {
+		var data FeedbackInputData
+		if err := c.ShouldBindJSON(&data); err != nil {
 			c.JSON(400, gin.H{"error": "invalid request body"})
 			return
 		}
 
+		feedback := feedbackInputDataToFeedback(data)
 		createdFeedback, err := h.FeedbackService.CreateFeedback(feedback)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
 		c.JSON(201, createdFeedback)
+	}
+}
+
+func feedbackInputDataToFeedback(input FeedbackInputData) feedback.Feedback {
+	return feedback.Feedback{
+		Description: input.Description,
+		Rating:      input.Rating,
+		IdFigure:    input.IdFigure,
+		IdUser:      input.IdUser,
 	}
 }

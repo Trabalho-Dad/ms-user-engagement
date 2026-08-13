@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where sqlc *)",
+      "Bash(sqlc version *)",
+      "Bash(where go *)",
+      "Bash(go version *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(winget install *)",
+      "Bash(go build *)",
+      "Bash(go test *)",
+      "PowerShell(go build *)"
+    ]
+  }
+}
