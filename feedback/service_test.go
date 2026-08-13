@@ -1,7 +1,6 @@
 package feedback_test
 
 import (
-	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -72,47 +71,26 @@ func TestService_CreateFeedback_ValidationError(t *testing.T) {
 	t.Parallel()
 
 	repo := feedbackmocks.NewRepository(t)
-	called := false
-	service := feedback.NewServiceWithPurchaseCheck(repo, func() (bool, error) {
-		called = true
-		return true, nil
-	})
+	service := feedback.NewService(repo)
 
 	_, err := service.CreateFeedback(feedback.Feedback{})
 	if err == nil {
 		t.Fatal("CreateFeedback() expected validation error, got nil")
 	}
-
-	if called {
-		t.Fatal("purchase check should not be called when validation fails")
-	}
 }
 
-func TestService_CreateFeedback_NoPurchaseFound(t *testing.T) {
+func TestService_CreateFeedback_InvalidRating(t *testing.T) {
 	t.Parallel()
 
 	repo := feedbackmocks.NewRepository(t)
-	service := feedback.NewServiceWithPurchaseCheck(repo, func() (bool, error) {
-		return false, nil
-	})
+	service := feedback.NewService(repo)
 
-	_, err := service.CreateFeedback(validFeedback())
-	if !errors.Is(err, feedback.ErrNoPurchaseFoundForFigure) {
-		t.Fatalf("CreateFeedback() error = %v, want %v", err, feedback.ErrNoPurchaseFoundForFigure)
-	}
-}
+	input := validFeedback()
+	input.Rating = 6
 
-func TestService_CreateFeedback_PurchaseValidationError(t *testing.T) {
-	t.Parallel()
-
-	repo := feedbackmocks.NewRepository(t)
-	service := feedback.NewServiceWithPurchaseCheck(repo, func() (bool, error) {
-		return false, errors.New("boom")
-	})
-
-	_, err := service.CreateFeedback(validFeedback())
-	if !errors.Is(err, feedback.ErrCouldNotValidateFigurePurchase) {
-		t.Fatalf("CreateFeedback() error = %v, want %v", err, feedback.ErrCouldNotValidateFigurePurchase)
+	_, err := service.CreateFeedback(input)
+	if err == nil {
+		t.Fatal("CreateFeedback() expected validation error, got nil")
 	}
 }
 
@@ -126,9 +104,7 @@ func TestService_CreateFeedback_Success(t *testing.T) {
 	output.CreatedAt = time.Date(2026, time.July, 12, 10, 30, 0, 0, time.UTC)
 	output.UpdatedAt = time.Date(2026, time.July, 12, 10, 31, 0, 0, time.UTC)
 
-	service := feedback.NewServiceWithPurchaseCheck(repo, func() (bool, error) {
-		return true, nil
-	})
+	service := feedback.NewService(repo)
 
 	repo.EXPECT().CreateFeedback(input).Return(output, nil)
 
@@ -142,12 +118,26 @@ func TestService_CreateFeedback_Success(t *testing.T) {
 	}
 }
 
+func TestService_CreateFeedback_RepositoryError(t *testing.T) {
+	t.Parallel()
+
+	repo := feedbackmocks.NewRepository(t)
+	input := validFeedback()
+
+	service := feedback.NewService(repo)
+
+	repo.EXPECT().CreateFeedback(input).Return(feedback.Feedback{}, feedback.ErrNoFeedbackFound)
+
+	_, err := service.CreateFeedback(input)
+	if err == nil {
+		t.Fatal("CreateFeedback() expected error, got nil")
+	}
+}
+
 func validFeedback() feedback.Feedback {
 	return feedback.Feedback{
-		ID:          "feedback-input-1",
 		Rating:      5,
 		Description: "great product",
-		CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
 		IdFigure:    10,
 		IdUser:      20,
 	}

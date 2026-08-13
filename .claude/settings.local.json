@@ -9,7 +9,8 @@
       "PowerShell(winget install *)",
       "Bash(go build *)",
       "Bash(go test *)",
-      "PowerShell(go build *)"
+      "PowerShell(go build *)",
+      "PowerShell(go *)"
     ]
   }
 }

@@ -243,12 +243,13 @@ func TestFeedbackHandler_CreateFeedback_Success(t *testing.T) {
 
 	useCase := feedbackmocks.NewUseCase(t)
 	input := validFeedbackRequest()
-	output := input
+	expectedFeedback := feedbackFromRequest(input)
+	output := expectedFeedback
 	output.ID = "feedback-1"
 	output.CreatedAt = time.Date(2026, time.July, 12, 10, 30, 0, 0, time.UTC)
 	output.UpdatedAt = time.Date(2026, time.July, 12, 10, 31, 0, 0, time.UTC)
 
-	useCase.EXPECT().CreateFeedback(input).Return(output, nil)
+	useCase.EXPECT().CreateFeedback(expectedFeedback).Return(output, nil)
 
 	router := setupTestRouter(NewFeedbackHandler(useCase))
 
@@ -271,7 +272,7 @@ func TestFeedbackHandler_CreateFeedback_Success(t *testing.T) {
 		t.Fatalf("unmarshal response: %v", err)
 	}
 
-	if got.ID != output.ID {
+	if !reflect.DeepEqual(got, output) {
 		t.Fatalf("response = %#v, want %#v", got, output)
 	}
 }
@@ -280,11 +281,13 @@ func TestFeedbackHandler_CreateFeedback_Error(t *testing.T) {
 	t.Parallel()
 
 	useCase := feedbackmocks.NewUseCase(t)
-	useCase.EXPECT().CreateFeedback(validFeedbackRequest()).Return(feedback.Feedback{}, errors.New("boom"))
+	input := validFeedbackRequest()
+	expectedFeedback := feedbackFromRequest(input)
+	useCase.EXPECT().CreateFeedback(expectedFeedback).Return(feedback.Feedback{}, errors.New("boom"))
 
 	router := setupTestRouter(NewFeedbackHandler(useCase))
 
-	payload, err := json.Marshal(validFeedbackRequest())
+	payload, err := json.Marshal(input)
 	if err != nil {
 		t.Fatalf("marshal request: %v", err)
 	}
@@ -314,13 +317,20 @@ func setupTestRouter(handler *FeedbackHandler) *gin.Engine {
 	return router
 }
 
-func validFeedbackRequest() feedback.Feedback {
-	return feedback.Feedback{
-		ID:          "feedback-input-1",
-		Rating:      5,
+func validFeedbackRequest() FeedbackInputData {
+	return FeedbackInputData{
 		Description: "great product",
-		CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
+		Rating:      5,
 		IdFigure:    10,
 		IdUser:      20,
+	}
+}
+
+func feedbackFromRequest(input FeedbackInputData) feedback.Feedback {
+	return feedback.Feedback{
+		Description: input.Description,
+		Rating:      input.Rating,
+		IdFigure:    input.IdFigure,
+		IdUser:      input.IdUser,
 	}
 }
