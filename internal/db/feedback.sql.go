@@ -89,16 +89,18 @@ func (q *Queries) GetFeedbackSummary(ctx context.Context, idFigure pgtype.Int4) 
 
 const getFeedbacksByFigureID = `-- name: GetFeedbacksByFigureID :many
 SELECT
-    id,
-    rating,
-    description,
-    created_at,
-    updated_at,
-    id_figure,
-    id_user
+    feedback.id,
+    feedback.rating,
+    feedback.description,
+    feedback.created_at,
+    feedback.updated_at,
+    feedback.id_figure,
+    feedback.id_user,
+    users.name AS user_name
 FROM feedback
-WHERE id_figure = $1
-ORDER BY id ASC
+LEFT JOIN users ON users.id = feedback.id_user
+WHERE feedback.id_figure = $1
+ORDER BY feedback.id ASC
 LIMIT $2
 OFFSET $3
 `
@@ -109,15 +111,26 @@ type GetFeedbacksByFigureIDParams struct {
 	Offset   int32       `json:"offset"`
 }
 
-func (q *Queries) GetFeedbacksByFigureID(ctx context.Context, arg GetFeedbacksByFigureIDParams) ([]Feedback, error) {
+type GetFeedbacksByFigureIDRow struct {
+	ID          int32            `json:"id"`
+	Rating      int32            `json:"rating"`
+	Description pgtype.Text      `json:"description"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	IDFigure    pgtype.Int4      `json:"id_figure"`
+	IDUser      pgtype.Int4      `json:"id_user"`
+	UserName    pgtype.Text      `json:"user_name"`
+}
+
+func (q *Queries) GetFeedbacksByFigureID(ctx context.Context, arg GetFeedbacksByFigureIDParams) ([]GetFeedbacksByFigureIDRow, error) {
 	rows, err := q.db.Query(ctx, getFeedbacksByFigureID, arg.IDFigure, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Feedback{}
+	items := []GetFeedbacksByFigureIDRow{}
 	for rows.Next() {
-		var i Feedback
+		var i GetFeedbacksByFigureIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Rating,
@@ -126,6 +139,7 @@ func (q *Queries) GetFeedbacksByFigureID(ctx context.Context, arg GetFeedbacksBy
 			&i.UpdatedAt,
 			&i.IDFigure,
 			&i.IDUser,
+			&i.UserName,
 		); err != nil {
 			return nil, err
 		}

@@ -15,7 +15,7 @@ type Store struct {
 
 type Queries interface {
 	CreateFeedback(ctx context.Context, arg db.CreateFeedbackParams) (db.Feedback, error)
-	GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedbacksByFigureIDParams) ([]db.Feedback, error)
+	GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedbacksByFigureIDParams) ([]db.GetFeedbacksByFigureIDRow, error)
 	CountFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) (int64, error)
 	GetFeedbackSummary(ctx context.Context, idFigure pgtype.Int4) (db.GetFeedbackSummaryRow, error)
 }
@@ -44,9 +44,9 @@ func (s *Store) GetFeedbacksByFigureID(idFigure int, page int) (feedback.Paginat
 		return feedback.PaginatedFeedbacks{}, err
 	}
 
-	feedbacks := make([]feedback.Feedback, len(rows))
+	feedbacks := make([]feedback.FeedbackResponseData, len(rows))
 	for i, row := range rows {
-		feedbacks[i] = toFeedback(row)
+		feedbacks[i] = toFeedbackResponse(row)
 	}
 
 	totalPages := 0
@@ -122,15 +122,15 @@ func (q sqlcQueries) CountFeedbacksByFigureID(ctx context.Context, idFigure pgty
 	return q.queries.CountFeedbacksByFigureID(ctx, idFigure)
 }
 
-func (q sqlcQueries) GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedbacksByFigureIDParams) ([]db.Feedback, error) {
+func (q sqlcQueries) GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedbacksByFigureIDParams) ([]db.GetFeedbacksByFigureIDRow, error) {
 	rows, err := q.queries.GetFeedbacksByFigureID(ctx, arg)
 	if err != nil {
 		return nil, err
 	}
 
-	items := make([]db.Feedback, len(rows))
+	items := make([]db.GetFeedbacksByFigureIDRow, len(rows))
 	for i, row := range rows {
-		items[i] = db.Feedback{
+		items[i] = db.GetFeedbacksByFigureIDRow{
 			ID:          row.ID,
 			Description: row.Description,
 			Rating:      row.Rating,
@@ -138,6 +138,7 @@ func (q sqlcQueries) GetFeedbacksByFigureID(ctx context.Context, arg db.GetFeedb
 			UpdatedAt:   row.UpdatedAt,
 			IDFigure:    row.IDFigure,
 			IDUser:      row.IDUser,
+			UserName:    row.UserName,
 		}
 	}
 
@@ -153,5 +154,20 @@ func toFeedback(row db.Feedback) feedback.Feedback {
 		UpdatedAt:   row.UpdatedAt.Time,
 		IdFigure:    int(row.IDFigure.Int32),
 		IdUser:      int(row.IDUser.Int32),
+	}
+}
+
+func toFeedbackResponse(row db.GetFeedbacksByFigureIDRow) feedback.FeedbackResponseData {
+	return feedback.FeedbackResponseData{
+		Feedback: feedback.Feedback{
+			ID:          strconv.FormatInt(int64(row.ID), 10),
+			Description: row.Description.String,
+			Rating:      int(row.Rating),
+			CreatedAt:   row.CreatedAt.Time,
+			UpdatedAt:   row.UpdatedAt.Time,
+			IdFigure:    int(row.IDFigure.Int32),
+			IdUser:      int(row.IDUser.Int32),
+		},
+		UserName: row.UserName.String,
 	}
 }

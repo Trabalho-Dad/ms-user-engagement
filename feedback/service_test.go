@@ -14,14 +14,17 @@ func TestService_GetFeedbacksByFigureID(t *testing.T) {
 
 	repo := feedbackmocks.NewRepository(t)
 	expected := feedback.PaginatedFeedbacks{
-		Feedbacks: []feedback.Feedback{
+		Feedbacks: []feedback.FeedbackResponseData{
 			{
-				ID:          "1",
-				Rating:      5,
-				Description: "great",
-				CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
-				IdFigure:    10,
-				IdUser:      20,
+				Feedback: feedback.Feedback{
+					ID:          "1",
+					Rating:      5,
+					Description: "great",
+					CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
+					IdFigure:    10,
+					IdUser:      20,
+				},
+				UserName: "David Bento",
 			},
 		},
 		Page:       1,

@@ -20,12 +20,17 @@ type Summary struct {
 	AverageRating  float64 `json:"average_rating"`
 }
 
+type FeedbackResponseData struct {
+	Feedback
+	UserName string `json:"user_name"`
+}
+
 type PaginatedFeedbacks struct {
-	Feedbacks  []Feedback `json:"feedbacks"`
-	Page       int        `json:"page"`
-	PageSize   int        `json:"page_size"`
-	TotalItems int64      `json:"total_items"`
-	TotalPages int        `json:"total_pages"`
+	Feedbacks  []FeedbackResponseData `json:"feedbacks"`
+	Page       int                    `json:"page"`
+	PageSize   int                    `json:"page_size"`
+	TotalItems int64                  `json:"total_items"`
+	TotalPages int                    `json:"total_pages"`
 }
 
 func (f Feedback) Validate() error {

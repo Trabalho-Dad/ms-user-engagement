@@ -1,3 +1,14 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    cpf VARCHAR(11) NOT NULL UNIQUE,
+    name VARCHAR(150) NOT NULL,
+    email VARCHAR(320) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role INT DEFAULT 1,
+    creation_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    deactivated_at TIMESTAMP
+);
+
 CREATE TABLE feedback (
     id SERIAL PRIMARY KEY,
     rating INTEGER NOT NULL CHECK (rating >= 0 AND rating <= 5),

@@ -14,7 +14,7 @@ type Querier interface {
 	CountFeedbacksByFigureID(ctx context.Context, idFigure pgtype.Int4) (int64, error)
 	CreateFeedback(ctx context.Context, arg CreateFeedbackParams) (CreateFeedbackRow, error)
 	GetFeedbackSummary(ctx context.Context, idFigure pgtype.Int4) (GetFeedbackSummaryRow, error)
-	GetFeedbacksByFigureID(ctx context.Context, arg GetFeedbacksByFigureIDParams) ([]Feedback, error)
+	GetFeedbacksByFigureID(ctx context.Context, arg GetFeedbacksByFigureIDParams) ([]GetFeedbacksByFigureIDRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

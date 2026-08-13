@@ -39,14 +39,17 @@ func TestFeedbackHandler_GetFeedbacksByFigureID_Success(t *testing.T) {
 
 	useCase := feedbackmocks.NewUseCase(t)
 	expected := feedback.PaginatedFeedbacks{
-		Feedbacks: []feedback.Feedback{
+		Feedbacks: []feedback.FeedbackResponseData{
 			{
-				ID:          "1",
-				Rating:      4,
-				Description: "good",
-				CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
-				IdFigure:    10,
-				IdUser:      20,
+				Feedback: feedback.Feedback{
+					ID:          "1",
+					Rating:      4,
+					Description: "good",
+					CreatedAt:   time.Date(2026, time.July, 12, 10, 0, 0, 0, time.UTC),
+					IdFigure:    10,
+					IdUser:      20,
+				},
+				UserName: "David Bento",
 			},
 		},
 		Page:       1,
@@ -82,7 +85,7 @@ func TestFeedbackHandler_GetFeedbacksByFigureID_WithPage(t *testing.T) {
 
 	useCase := feedbackmocks.NewUseCase(t)
 	expected := feedback.PaginatedFeedbacks{
-		Feedbacks:  []feedback.Feedback{},
+		Feedbacks:  []feedback.FeedbackResponseData{},
 		Page:       2,
 		PageSize:   feedback.FeedbacksPageSize,
 		TotalItems: 6,

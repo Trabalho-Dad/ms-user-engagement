@@ -1,15 +1,17 @@
 -- name: GetFeedbacksByFigureID :many
 SELECT
-    id,
-    rating,
-    description,
-    created_at,
-    updated_at,
-    id_figure,
-    id_user
+    feedback.id,
+    feedback.rating,
+    feedback.description,
+    feedback.created_at,
+    feedback.updated_at,
+    feedback.id_figure,
+    feedback.id_user,
+    users.name AS user_name
 FROM feedback
-WHERE id_figure = $1
-ORDER BY id ASC
+LEFT JOIN users ON users.id = feedback.id_user
+WHERE feedback.id_figure = $1
+ORDER BY feedback.id ASC
 LIMIT $2
 OFFSET $3;
 
