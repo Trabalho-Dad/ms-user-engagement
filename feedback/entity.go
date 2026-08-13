@@ -1,7 +1,7 @@
 package feedback
 
 import (
-	"errors"
+	"fmt"
 	"time"
 )
 
@@ -35,11 +35,19 @@ type PaginatedFeedbacks struct {
 
 func (f Feedback) Validate() error {
 	if f.Rating < 1 || f.Rating > 5 {
-		return errors.New("rating must be between 1 and 5")
+		return fmt.Errorf("%w: rating must be between 1 and 5", ErrInvalidFeedback)
 	}
 
 	if f.Description == "" {
-		return errors.New("description is required")
+		return fmt.Errorf("%w: description is required", ErrInvalidFeedback)
+	}
+
+	if f.IdFigure <= 0 {
+		return fmt.Errorf("%w: id_figure is required", ErrInvalidFeedback)
+	}
+
+	if f.IdUser <= 0 {
+		return fmt.Errorf("%w: id_user is required", ErrInvalidFeedback)
 	}
 	return nil
 }

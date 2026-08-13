@@ -1,6 +1,7 @@
 package feedback_test
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -77,8 +78,8 @@ func TestService_CreateFeedback_ValidationError(t *testing.T) {
 	service := feedback.NewService(repo)
 
 	_, err := service.CreateFeedback(feedback.Feedback{})
-	if err == nil {
-		t.Fatal("CreateFeedback() expected validation error, got nil")
+	if !errors.Is(err, feedback.ErrInvalidFeedback) {
+		t.Fatalf("CreateFeedback() error = %v, want %v", err, feedback.ErrInvalidFeedback)
 	}
 }
 
@@ -92,8 +93,38 @@ func TestService_CreateFeedback_InvalidRating(t *testing.T) {
 	input.Rating = 6
 
 	_, err := service.CreateFeedback(input)
-	if err == nil {
-		t.Fatal("CreateFeedback() expected validation error, got nil")
+	if !errors.Is(err, feedback.ErrInvalidFeedback) {
+		t.Fatalf("CreateFeedback() error = %v, want %v", err, feedback.ErrInvalidFeedback)
+	}
+}
+
+func TestService_CreateFeedback_MissingIdFigure(t *testing.T) {
+	t.Parallel()
+
+	repo := feedbackmocks.NewRepository(t)
+	service := feedback.NewService(repo)
+
+	input := validFeedback()
+	input.IdFigure = 0
+
+	_, err := service.CreateFeedback(input)
+	if !errors.Is(err, feedback.ErrInvalidFeedback) {
+		t.Fatalf("CreateFeedback() error = %v, want %v", err, feedback.ErrInvalidFeedback)
+	}
+}
+
+func TestService_CreateFeedback_MissingIdUser(t *testing.T) {
+	t.Parallel()
+
+	repo := feedbackmocks.NewRepository(t)
+	service := feedback.NewService(repo)
+
+	input := validFeedback()
+	input.IdUser = 0
+
+	_, err := service.CreateFeedback(input)
+	if !errors.Is(err, feedback.ErrInvalidFeedback) {
+		t.Fatalf("CreateFeedback() error = %v, want %v", err, feedback.ErrInvalidFeedback)
 	}
 }
 

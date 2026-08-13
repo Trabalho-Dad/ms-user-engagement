@@ -2,12 +2,17 @@ package store
 
 import (
 	"context"
+	"errors"
 	"ms-feedbacks/feedback"
 	"ms-feedbacks/internal/db"
 	"strconv"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+// Postgres SQLSTATE for a foreign key violation.
+const pgForeignKeyViolationCode = "23503"
 
 type Store struct {
 	Queries Queries
@@ -87,6 +92,10 @@ func (s *Store) CreateFeedback(fb feedback.Feedback) (feedback.Feedback, error) 
 
 	row, err := s.Queries.CreateFeedback(context.Background(), arg)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgForeignKeyViolationCode {
+			return feedback.Feedback{}, feedback.ErrFigureOrUserNotFound
+		}
 		return feedback.Feedback{}, err
 	}
 

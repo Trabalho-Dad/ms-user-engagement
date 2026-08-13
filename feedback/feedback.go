@@ -12,6 +12,8 @@ var (
 	ErrNoFeedbackFound                = errors.New("no feedback found")
 	ErrCouldNotValidateFigurePurchase = errors.New("could not validate figure purchase")
 	ErrNoPurchaseFoundForFigure       = errors.New("no purchase found for this figure")
+	ErrInvalidFeedback                = errors.New("invalid feedback")
+	ErrFigureOrUserNotFound           = errors.New("figure or user not found")
 )
 
 type UseCase interface {

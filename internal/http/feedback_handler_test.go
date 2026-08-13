@@ -309,6 +309,56 @@ func TestFeedbackHandler_CreateFeedback_Error(t *testing.T) {
 	}
 }
 
+func TestFeedbackHandler_CreateFeedback_ValidationError(t *testing.T) {
+	t.Parallel()
+
+	useCase := feedbackmocks.NewUseCase(t)
+	input := validFeedbackRequest()
+	expectedFeedback := feedbackFromRequest(input)
+	useCase.EXPECT().CreateFeedback(expectedFeedback).Return(feedback.Feedback{}, feedback.ErrInvalidFeedback)
+
+	router := setupTestRouter(NewFeedbackHandler(useCase))
+
+	payload, err := json.Marshal(input)
+	if err != nil {
+		t.Fatalf("marshal request: %v", err)
+	}
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/ms-feedback", bytes.NewReader(payload))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status code = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+}
+
+func TestFeedbackHandler_CreateFeedback_FigureOrUserNotFound(t *testing.T) {
+	t.Parallel()
+
+	useCase := feedbackmocks.NewUseCase(t)
+	input := validFeedbackRequest()
+	expectedFeedback := feedbackFromRequest(input)
+	useCase.EXPECT().CreateFeedback(expectedFeedback).Return(feedback.Feedback{}, feedback.ErrFigureOrUserNotFound)
+
+	router := setupTestRouter(NewFeedbackHandler(useCase))
+
+	payload, err := json.Marshal(input)
+	if err != nil {
+		t.Fatalf("marshal request: %v", err)
+	}
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/ms-feedback", bytes.NewReader(payload))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status code = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+}
+
 func setupTestRouter(handler *FeedbackHandler) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 

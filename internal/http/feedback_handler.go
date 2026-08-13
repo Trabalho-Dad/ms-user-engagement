@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"ms-feedbacks/feedback"
 	"strconv"
 
@@ -75,9 +76,13 @@ func (h *FeedbackHandler) CreateFeedback() gin.HandlerFunc {
 			return
 		}
 
-		feedback := feedbackInputDataToFeedback(data)
-		createdFeedback, err := h.FeedbackService.CreateFeedback(feedback)
+		fb := feedbackInputDataToFeedback(data)
+		createdFeedback, err := h.FeedbackService.CreateFeedback(fb)
 		if err != nil {
+			if errors.Is(err, feedback.ErrInvalidFeedback) || errors.Is(err, feedback.ErrFigureOrUserNotFound) {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
